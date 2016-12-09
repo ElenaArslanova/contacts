@@ -13,6 +13,7 @@ class Matcher:
         self.matching_points = self.get_matching_points()
         self.non_matching_points = self.get_non_matching_points()
         self.pairs = self.get_pairs()
+        self.matching_pairs = []
 
     def get_compare_function(self):
         compare_function = dict.fromkeys(chain(Client.BASIC, Client.SOCIAL_NETWORKS, Client.CONTACTS_PARAMS),
@@ -44,10 +45,24 @@ class Matcher:
     def get_pairs(self):
         return [Pair(user_1, user_2) for user_1 in self.first_network for user_2 in self.second_network]
 
+    def get_unique_profiles(self):
+        profiles = set()
+        for pair in self.matching_pairs:
+            profile = pair.merge()
+            profiles.add(profile)
+        non_matching_pairs = set(self.pairs) - set(self.matching_pairs )
+        for pair in non_matching_pairs:
+            profiles.add(pair.first)
+            profiles.add(pair.second)
+        return profiles
+
     def compare_pairs(self):
         for pair in self.pairs:
             for attribute in pair.common_attributes:
                 self.compare_attribute(pair, attribute)
+            pair.check_equality()
+            if pair.equal:
+                self.matching_pairs.append(pair)
 
     def compare_attribute(self, pair, attribute):
         if attribute in self.tfidf_attributes:
@@ -76,7 +91,7 @@ class Pair:
         self.second = second_user
         self.score = 0
         self.common_attributes = self.get_common_attributes()
-        self.equals = None
+        self.equal = None
 
     def get_common_attributes(self):
         return [field for field in Client.FriendInfo._fields
@@ -86,12 +101,12 @@ class Pair:
         points = Matcher.get_matching_points()
         max_score = sum(points[attr] for attr in self.common_attributes if attr in points)
         if self.score > max_score * 0.8:
-            self.equals = True
+            self.equal = True
         else:
-            self.equals = False
+            self.equal = False
 
     def merge(self):
-        if not self.equals:
+        if not self.equal:
             return None
         available_attributes = [field for field in Client.FriendInfo._fields
                                 if getattr(self.first, field) or getattr(self.second, field)]
