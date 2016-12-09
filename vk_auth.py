@@ -70,7 +70,6 @@ def auth(email, password, client_id, scope):
             raise NotImplementedError('Method {}'.format(parser.method))
         return response.read(), response.geturl()
 
-
     def give_access(doc, opener):
         parser = FormParser()
         parser.feed(doc.decode('utf-8'))
@@ -83,7 +82,6 @@ def auth(email, password, client_id, scope):
         else:
             raise NotImplementedError('Method {}'.format(parser.method))
         return response.geturl()
-
 
     if not isinstance(scope, list):
         scope = [scope]

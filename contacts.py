@@ -23,25 +23,32 @@ def main():
     # email = input('Email: ')
     # password = getpass.getpass('Password: ')
 
-    # email = 'contilen@rambler.ru'
-    # password = 'LeGos1002PlTa'
-    # vk_client = VkClient(email, password, screen_name='contl')
-    #
-    # contact = vk_client.get_friends_info()
-    # for f in contact:
-    #     print(f, contact[f])
+    email = 'contilen@rambler.ru'
+    password = 'LeGos1002PlTa'
+    vk_client = VkClient(email, password, screen_name='contl')
 
-    # twitter_client = TwitterClient('contilen')
-    # try:
-    #     fr = twitter_client.get_friends_info()
-    #     for f in fr:
-    #         print(f, fr[f])
-    # except Exception as e:
-    #     print(e)
+    contact = vk_client.get_friends_info()[:6]
+    n1 = contact[:3]
+    n2 = contact[3:]
 
 
-    matcher = Matcher([], [])
-    print(matcher.all_attributes)
+    twitter_client = TwitterClient('contilen')
+    try:
+        fr = twitter_client.get_friends_info()
+        for f in fr:
+            print(f)
+    except Exception as e:
+        print(e)
+
+    # print(metrics.soft_tfidf('qwe rty', 'weqwe rtyr', 0.7))
+    # matcher = Matcher(n1, n2)
+    # pairs = matcher.get_pairs()
+    # matcher.compare_pairs()
+    # for p in matcher.pairs:
+    #     print(p.first)
+    #     print(p.second)
+    #     print(p.score)
+    #     print()
 
 if __name__ == '__main__':
     main()
