@@ -146,4 +146,5 @@ class TwitterClient(Client):
             person = data.pop('name')
             friends[person] = {'site': data['url'],
                                'location': data['location']}
+            # поле твиттера установить
         return friends

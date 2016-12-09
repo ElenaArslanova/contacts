@@ -3,6 +3,7 @@ from clients import VkClient, TwitterClient
 import getpass
 from vk_auth import auth
 import twitter_auth
+from matcher import Matcher
 import metrics
 
 
@@ -37,12 +38,10 @@ def main():
     #         print(f, fr[f])
     # except Exception as e:
     #     print(e)
-    d1='alexandre williams'
-    d2='aleksandre williams'
-    d3='aleksandr willi'
-    query = 'alexander will'
-    print(metrics.jaro('will', 'williams'))
-    print(metrics.get_tfidf_cosine_similarity(query, [d1, d2, d3]))
+
+
+    matcher = Matcher([], [])
+    print(matcher.all_attributes)
 
 if __name__ == '__main__':
     main()
