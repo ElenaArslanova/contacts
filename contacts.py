@@ -1,18 +1,21 @@
 import argparse
-import os.path
 import csv
-from clients import Client, VkClient, TwitterClient
 import getpass
-from matcher import Matcher
+import os.path
+
+from auth.clients import Client, VkClient, TwitterClient
+from matching.matcher import Matcher
 
 
 def create_parser():
     parser = argparse.ArgumentParser(prog='contacts',
                                      description='Merge contacts from VK and Twitter')
-    parser.add_argument('--vk_name', nargs=1, help='vk screen name',
+    parser.add_argument('--vk_name', help='vk screen name',
                         required=True)
     parser.add_argument('-id', type=positive, help='vk id')
-    parser.add_argument('--twitter_name', nargs=1, help='twitter screen name')
+    parser.add_argument('--twitter_name', help='twitter screen name')
+    parser.add_argument('--file', default='profiles',
+                        help='saving merged profiles to csv file')
     return parser
 
 
@@ -26,9 +29,9 @@ def positive(value):
 
 def write_to_csv(profiles, filename):
     directory = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(directory, filename)
-    with open(path, 'w') as f:
-        writer = csv.writer(f, lineterminator='\n')
+    path = os.path.join(directory, '{}.csv'.format(filename))
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
         writer.writerow(Client.FriendInfo._fields)
         for profile in profiles:
             writer.writerow(profile)
@@ -39,20 +42,21 @@ def main():
     namespace = parser.parse_args()
     vk_screen_name = namespace.vk_name
     twitter_screen_name = namespace.twitter_name
+    filename = namespace.file
+    print('Log into VK')
     email = input('Email: ')
     password = getpass.getpass('Password: ')
-
-    vk_client = VkClient(email, password, screen_name=vk_screen_name)
-    #
-    # contact = vk_client.get_friends_info()[:4]
-    # twitter_client = TwitterClient(twitter_screen_name)
-    # try:
-    #     fr = twitter_client.get_friends_info()
-    #     matcher = Matcher(contact, fr)
-    #     profiles = matcher.match_profiles()
-    #     write_to_csv(profiles, 'contacts.csv')
-    # except Exception as e:
-    #     print(e)
+    try:
+        vk_client = VkClient(email, password, screen_name = vk_screen_name)
+        contact = vk_client.get_friends_info()
+        twitter_client = TwitterClient(twitter_screen_name)
+        fr = twitter_client.get_friends_info()
+        matcher = Matcher(contact, fr)
+        profiles = matcher.match_profiles()
+        write_to_csv(profiles, filename)
+        print('Merging profiles is finished!')
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
