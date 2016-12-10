@@ -13,16 +13,19 @@ class Client:
 
     FIELDS = ['name', 'city', 'home_town', 'contacts',
               'career', 'education', 'connections', 'location']
-    GENDER = {0: 'unknown', 1: 'female', 2: 'male'}
+    GENDER = {0: 'неизвестно', 1: 'женский', 2: 'мужской'}
     BASIC = ['bdate', 'sex', 'country', 'site']
     SOCIAL_NETWORKS = ['instagram', 'twitter', 'facebook_name', 'skype',
                        'livejournal']
     EDUCATION_PARAMS = ['faculty_name', 'university_name']
     CONTACTS_PARAMS = ['home_phone', 'mobile_phone']
-    FriendInfo = namedtuple('Friend', ' '.join(chain(FIELDS, SOCIAL_NETWORKS,
-                                                     EDUCATION_PARAMS,
-                                                     CONTACTS_PARAMS, BASIC)))
+    FriendInfo = namedtuple('FriendInfo', ' '.join(chain(FIELDS,
+                                                         SOCIAL_NETWORKS,
+                                                         EDUCATION_PARAMS,
+                                                         CONTACTS_PARAMS,
+                                                         BASIC)))
     FriendInfo.__new__.__defaults__ = (None,) * len(FriendInfo._fields)
+    Friend = namedtuple('Friend', 'info vk')
 
     def get_request_url(self, network, method, parameters):
         if network == self.VK:
@@ -44,7 +47,7 @@ class Client:
 class VkClient(Client):
     CLIENT_ID = '5743518'
 
-    def __init__(self, email, password, vk_id=None, screen_name=None): # убрать ненужные параметры и методы
+    def __init__(self, email, password, vk_id=None, screen_name=None):
         self.screen_name = screen_name
         self.access_token = vk_auth.auth(email, password, self.CLIENT_ID,
                                          'friends')
@@ -83,18 +86,24 @@ class VkClient(Client):
             for param in ['id', 'deactivated', 'online', 'lists', 'university',
                           'faculty', 'facebook', 'graduation']:
                 friend_info.pop(param, None)
-            friend_info['name'] = "{} {}".format(friend_info.pop('last_name'), friend_info.pop('first_name'))
+            friend_info['name'] = "{} {}".format(friend_info.pop('last_name'),
+                                                 friend_info.pop('first_name'))
             friend_info['sex'] = self.GENDER[friend_info['sex']]
             if 'career' in friend_info and friend_info['career']:
                 career_info = friend_info['career'][0]
-                friend_info['career'] = '{}, {}'.format(career_info.get('company', ''), career_info.get('position', ''))
+                friend_info['career'] = '{}, {}'.format(career_info.get('company', ''),
+                                                        career_info.get('position', ''))
             friends.append(friend_info)
         self.process_friends_field(friends, ['city', 'country'])
         for friend in friends:
-            friend['location'] = '{}, {}'.format(friend.get('city', ''), friend.get('country', ''))
+            friend['location'] = '{}, {}'.format(friend.get('city', ''),
+                                                 friend.get('country', ''))
         fields_to_clear = ['career', 'home_town', 'site']
-        self.clear_friends_field(friends, list(chain(fields_to_clear, self.EDUCATION_PARAMS, self.CONTACTS_PARAMS)))
-        return [self.FriendInfo(**friend) for friend in friends]
+        self.clear_friends_field(friends, list(chain(fields_to_clear,
+                                                     self.EDUCATION_PARAMS,
+                                                     self.CONTACTS_PARAMS)))
+        return [self.Friend(info=self.FriendInfo(**friend), vk=True)
+                for friend in friends]
 
     @staticmethod
     def friends_filtered_by_field(friends_info, field):
@@ -149,4 +158,5 @@ class TwitterClient(Client):
             friends.append({'name': data['name'], 'site': site,
                             'location': data['location'], 'twitter': data['screen_name']})
         self.clear_friends_field(friends, ['location', 'site'])
-        return [self.FriendInfo(**friend) for friend in friends]
+        return [self.Friend(info=self.FriendInfo(**friend), vk=False)
+                for friend in friends]
