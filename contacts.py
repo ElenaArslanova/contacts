@@ -9,13 +9,14 @@ from matching.matcher import Matcher
 
 def create_parser():
     parser = argparse.ArgumentParser(prog='contacts',
-                                     description='Merge contacts from VK and Twitter')
+                                     description='''Export contacts
+                                     from VK and Twitter to csv''')
     parser.add_argument('--vk_name', help='vk screen name',
                         required=True)
     parser.add_argument('-id', type=positive, help='vk id')
     parser.add_argument('--twitter_name', help='twitter screen name')
     parser.add_argument('--file', default='profiles',
-                        help='saving merged profiles to csv file')
+                        help='saving exported profiles to csv file')
     return parser
 
 
@@ -54,7 +55,7 @@ def main():
         matcher = Matcher(contact, fr)
         profiles = matcher.match_profiles()
         write_to_csv(profiles, filename)
-        print('Merging profiles is finished!')
+        print('Exporting profiles is finished!')
     except Exception as e:
         print(e)
 
