@@ -1,10 +1,9 @@
+import json
+import urllib.request
 from collections import namedtuple
 from itertools import chain
-import urllib.request
 from urllib.parse import urlencode
-import json
-import vk_auth
-import twitter_auth
+from modules import vk_auth, twitter_auth
 
 
 class Client:

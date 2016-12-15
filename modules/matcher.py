@@ -1,6 +1,7 @@
-from clients import Client
 from itertools import chain
-import metrics
+
+from modules import metrics
+from modules.clients import Client
 
 
 class Matcher:

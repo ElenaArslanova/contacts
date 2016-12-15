@@ -3,8 +3,8 @@ import csv
 import getpass
 import os.path
 
-from auth.clients import Client, VkClient, TwitterClient
-from matching.matcher import Matcher
+from modules.clients import Client, VkClient, TwitterClient
+from modules.matcher import Matcher
 
 
 def create_parser():

@@ -1,12 +1,13 @@
-import unittest
-import sys
 import os
-import metrics
-from matcher import Matcher, Pair
-from clients import Client
+import sys
+import unittest
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              os.path.pardir))
+
+from modules.clients import Client
+from modules import metrics
+from modules.matcher import Matcher, Pair
 
 
 class TestMetrics(unittest.TestCase):
@@ -16,7 +17,6 @@ class TestMetrics(unittest.TestCase):
         self.assertTrue(metrics.jaro('zxcvbn', 'zxcvbn') == 1)
 
     def test_soft_tfidf(self):
-        print(metrics.soft_tfidf('Martha Lewis', 'Martha Lewis', 0.8))
         self.assertAlmostEqual(metrics.soft_tfidf('Martha Lewis',
                                                   'Martha Lewis', 0.8),
                                1)
