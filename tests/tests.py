@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              os.path.pardir))
@@ -31,7 +32,7 @@ class TestMetrics(unittest.TestCase):
 
 class TestPair(unittest.TestCase):
     def setUp(self):
-        self.matcher = Matcher([], [])
+        self.matcher = Matcher([], [], True)
         self.same_pair = Pair(Client.Friend(info=Client.FriendInfo(
                                                 name='John Smith',
                                                 bdate='12.10.90',
@@ -41,7 +42,7 @@ class TestPair(unittest.TestCase):
                                   name='Smith John',
                                   location='Paris, France',
                                   twitter='Johny123'),
-                                  vk=False))
+                                  vk=False), True)
         self.different_pair = Pair(Client.Friend(info=Client.FriendInfo(
                                                     name='Rosy Lee',
                                                     sex='female',
@@ -50,7 +51,7 @@ class TestPair(unittest.TestCase):
                                    Client.Friend(info=Client.FriendInfo(
                                                     city='Toronto',
                                                     bdate='12.12.12'),
-                                                 vk=False))
+                                                 vk=False), True)
         self.pairs = [self.same_pair, self.different_pair]
 
     def test_get_common_attributes(self):
@@ -70,10 +71,15 @@ class TestPair(unittest.TestCase):
     def test_merge(self):
         merged_info = self.same_pair.merge()
         expected_info = Client.FriendInfo(name='John Smith', bdate='12.10.90',
-                                          twitter = 'Johny123',
-                                          location = 'Paris, France')
+                                          twitter='Johny123',
+                                          location='Paris, France')
 
         self.assertEqual(merged_info, expected_info)
+
+    @patch('builtins.input', lambda x: '1')
+    def test_user_choice(self):
+            self.assertEqual(Pair.user_choice('Location', ['London', 'Paris']),
+                             'London')
 
 
 class TestMatcher(unittest.TestCase):
@@ -94,14 +100,18 @@ class TestMatcher(unittest.TestCase):
                                        vk=False)
         self.vk_profiles = [vk_first, vk_second]
         self.twitter_profiles = [twitter_first, twitter_second]
-        self.matcher = Matcher(self.vk_profiles, self.twitter_profiles)
+        self.matcher = Matcher(self.vk_profiles, self.twitter_profiles, True)
 
     def test_get_pairs(self):
         pairs = self.matcher.get_pairs()
-        expected_pairs = [Pair(self.vk_profiles[0], self.twitter_profiles[0]),
-                          Pair(self.vk_profiles[0], self.twitter_profiles[1]),
-                          Pair(self.vk_profiles[1], self.twitter_profiles[0]),
-                          Pair(self.vk_profiles[1], self.twitter_profiles[1])]
+        expected_pairs = [Pair(self.vk_profiles[0], self.twitter_profiles[0],
+                               True),
+                          Pair(self.vk_profiles[0], self.twitter_profiles[1],
+                               True),
+                          Pair(self.vk_profiles[1], self.twitter_profiles[0],
+                               True),
+                          Pair(self.vk_profiles[1], self.twitter_profiles[1],
+                               True)]
         self.assertEqual(len(pairs), len(expected_pairs))
         for i in range(len(pairs)):
             self.assertEqual(pairs[i].first, expected_pairs[i].first)
@@ -111,7 +121,7 @@ class TestMatcher(unittest.TestCase):
         self.matcher.compare_pairs()
         self.assertEqual(len(self.matcher.matching_pairs), 1)
         matching_pair = self.matcher.matching_pairs[0]
-        pair = Pair(self.vk_profiles[0], self.twitter_profiles[0])
+        pair = Pair(self.vk_profiles[0], self.twitter_profiles[0], True)
         self.assertEqual(matching_pair.first, pair.first)
         self.assertEqual(matching_pair.second, pair.second)
 
@@ -122,7 +132,7 @@ class TestMatcher(unittest.TestCase):
                                   vk=True),
                     Client.Friend(info=Client.FriendInfo(name='Smith John',
                                                          twitter='Johny123'),
-                                  vk=False))
+                                  vk=False), True)
         self.assertEqual(pair.score, 0)
         self.matcher.compare_attribute(pair, 'name')
         self.assertEqual(pair.score, 1)
@@ -150,7 +160,7 @@ class TestMatcher(unittest.TestCase):
         merged_profiles = self.matcher.merge_profiles()
         self.assertEqual(len(merged_profiles), 3)
         merged_profile = Pair(self.vk_profiles[0],
-                              self.twitter_profiles[0]).merge()
+                              self.twitter_profiles[0], True).merge()
         profiles = [merged_profile, self.vk_profiles[1].info,
                     self.twitter_profiles[1].info]
         self.assertCountEqual(merged_profiles, profiles)

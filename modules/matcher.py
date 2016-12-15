@@ -5,9 +5,10 @@ from modules.clients import Client
 
 
 class Matcher:
-    def __init__(self, first_net_profiles, second_net_profiles):
+    def __init__(self, first_net_profiles, second_net_profiles, auto_merge):
         self.first_network = first_net_profiles
         self.second_network = second_net_profiles
+        self.auto_merge = auto_merge
         self.tfidf_attributes = ['name', 'career', 'faculty_name',
                                  'university_name', 'location']
         self.compare_function = self.get_compare_function()
@@ -51,7 +52,8 @@ class Matcher:
         return non_matching_points
 
     def get_pairs(self):
-        return [Pair(user_1, user_2) for user_1 in self.first_network
+        return [Pair(user_1, user_2, self.auto_merge)
+                for user_1 in self.first_network
                 for user_2 in self.second_network]
 
     def merge_profiles(self):
@@ -60,7 +62,7 @@ class Matcher:
             profiles.extend((pair.first.info, pair.second.info))
         profiles = set(profiles)
         for pair in self.matching_pairs:
-            profiles  = profiles - {pair.first.info, pair.second.info}
+            profiles = profiles - {pair.first.info, pair.second.info}
             profile = pair.merge()
             profiles.add(profile)
         return list(profiles)
@@ -95,21 +97,20 @@ class Matcher:
                 pair.score += self.non_matching_points[attribute]
 
     def attributes_are_equal(self, comparison_result, attribute):
-        if (attribute in self.matching_threshold
-            and comparison_result > self.matching_threshold[attribute]
-                or comparison_result == 1):
-            return True
-        else:
-            return False
+        return (attribute in self.matching_threshold and
+                comparison_result > self.matching_threshold[attribute] or
+                comparison_result == 1)
 
     def match_profiles(self):
         self.compare_pairs()
         return self.merge_profiles()
 
+
 class Pair:
-    def __init__(self, first_user, second_user):
+    def __init__(self, first_user, second_user, auto_merge):
         self.first = first_user
         self.second = second_user
+        self.auto_merge = auto_merge
         self.score = 0
         self.common_attributes = self.get_common_attributes()
         self.equal = None
@@ -133,14 +134,27 @@ class Pair:
                                 if getattr(self.first.info, field)
                                 or getattr(self.second.info, field)]
         profile_info = {}
-        for attribute in available_attributes:
-            first = getattr(self.first.info, attribute)
-            second = getattr(self.second.info, attribute)
-            if attribute in self.common_attributes:
-                profile_info[attribute] = first if self.first.vk else second
+        for attr in available_attributes:
+            first = getattr(self.first.info, attr)
+            second = getattr(self.second.info, attr)
+            if attr in self.common_attributes:
+                if self.auto_merge:
+                    profile_info[attr] = first if self.first.vk else second
+                else:
+                    profile_info[attr] = self.user_choice(attr,
+                                                          [first, second])
             else:
-                profile_info[attribute] = first if second is None else second
+                profile_info[attr] = first if second is None else second
         return Client.FriendInfo(**profile_info)
+
+    @staticmethod
+    def user_choice(conflict_attribute, options):
+        print('Merging {} field'.format(conflict_attribute))
+        print('First option: {}\nSecond option: {}'.format(*options))
+        option = input('Choose an option. Enter 1 or 2: ')
+        while option not in ['1', '2']:
+            option = input('Invalid option. Choose from 1 and 2: ')
+        return options[int(option) - 1]
 
     def __repr__(self):
         return '{} - {}'.format(self.first.info.name, self.second.info.name)

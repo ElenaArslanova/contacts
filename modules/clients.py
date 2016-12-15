@@ -30,7 +30,7 @@ class Client:
         if network == self.VK:
             parameters['v'] = '5.8'
         return 'https://api.{}.com/{}?{}'.format(network, method,
-                                               urlencode(parameters))
+                                                 urlencode(parameters))
 
     @staticmethod
     def clear_friends_field(friends, field_parameters):
@@ -79,7 +79,8 @@ class VkClient(Client):
         friends_request = self.request(self.VK, 'method/friends.get',
                                        {'user_id': self.id,
                                         'access_token': self.access_token,
-                                        'fields': ','.join(chain(self.FIELDS, self.BASIC))})
+                                        'fields': ','.join(chain(self.FIELDS,
+                                                                 self.BASIC))})
         friends_info = json.loads(friends_request)['response']['items']
         for friend_info in friends_info:
             for param in ['id', 'deactivated', 'online', 'lists', 'university',
@@ -90,8 +91,9 @@ class VkClient(Client):
             friend_info['sex'] = self.GENDER[friend_info['sex']]
             if 'career' in friend_info and friend_info['career']:
                 career_info = friend_info['career'][0]
-                friend_info['career'] = '{}, {}'.format(career_info.get('company', ''),
-                                                        career_info.get('position', ''))
+                friend_info['career'] = '{}, {}'.format(
+                    career_info.get('company', ''),
+                    career_info.get('position', ''))
             friends.append(friend_info)
         self.process_friends_field(friends, ['city', 'country'])
         for friend in friends:
@@ -148,14 +150,16 @@ class TwitterClient(Client):
     def get_friends_info(self):
         friends = []
         friends_data = self.request(self.TWITTER, '1.1/friends/list.json',
-                           {'screen_name': self.screen_name,
-                            'count': 200})
+                                    {'screen_name': self.screen_name,
+                                     'count': 200})
         for data in friends_data:
             if data['url']:
                 site = data['entities']['url']['urls'][0]['expanded_url']
-            else: site = None
+            else:
+                site = None
             friends.append({'name': data['name'], 'site': site,
-                            'location': data['location'], 'twitter': data['screen_name']})
+                            'location': data['location'],
+                            'twitter': data['screen_name']})
         self.clear_friends_field(friends, ['location', 'site'])
         return [self.Friend(info=self.FriendInfo(**friend), vk=False)
                 for friend in friends]

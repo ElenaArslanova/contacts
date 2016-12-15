@@ -4,6 +4,7 @@ import urllib.request
 from urllib.parse import urlparse, urlencode
 from html.parser import HTMLParser
 
+
 class FormParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -31,7 +32,8 @@ class FormParser(HTMLParser):
         elif tag == 'input' and 'type' in attributes and 'name' in attributes:
             if attributes['type'] in ['hidden', 'text', 'password']:
                 self.params[attributes['name']] = (attributes['value']
-                                            if 'value' in attributes else '')
+                                                   if 'value' in attributes
+                                                   else '')
 
     def handle_endtag(self, tag):
         tag = tag.lower()
