@@ -79,11 +79,12 @@ class Matcher:
         if attribute not in pair.common_attributes:
             return
         if attribute in self.tfidf_attributes:
+            threshold = self.matching_threshold.get(attribute)
             result = self.compare_function[attribute](getattr(pair.first.info,
                                                               attribute),
                                                       getattr(pair.second.info,
                                                               attribute),
-                                                      self.matching_threshold.get(attribute))
+                                                      threshold)
         else:
             result = self.compare_function[attribute](getattr(pair.first.info,
                                                               attribute),
@@ -131,8 +132,8 @@ class Pair:
 
     def merge(self):
         available_attributes = [field for field in Client.FriendInfo._fields
-                                if getattr(self.first.info, field)
-                                or getattr(self.second.info, field)]
+                                if getattr(self.first.info, field) or
+                                getattr(self.second.info, field)]
         profile_info = {}
         for attr in available_attributes:
             first = getattr(self.first.info, attr)

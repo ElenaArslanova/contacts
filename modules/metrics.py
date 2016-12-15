@@ -70,15 +70,19 @@ def soft_tfidf(set1, set2, threshold):
                          else corpus_size / element_freq[sim.first_string])
             idf_second = (corpus_size if sim.second_string not in element_freq
                           else corpus_size / element_freq[sim.second_string])
-            v_x = 0 if sim.first_string not in tf_x else idf_first * tf_x[sim.first_string]
-            v_y = 0 if sim.second_string not in tf_y else idf_second * tf_y[sim.second_string]
+            v_x = (0 if sim.first_string not in tf_x else
+                   idf_first * tf_x[sim.first_string])
+            v_y = (0 if sim.second_string not in tf_y else
+                   idf_second * tf_y[sim.second_string])
             result += v_x * v_y * sim.similarity_score
-        idf = corpus_size if elem not in element_freq else corpus_size / element_freq[elem]
+        idf = (corpus_size if elem not in element_freq else
+               corpus_size / element_freq[elem])
         v_x = 0 if elem not in tf_x else idf * tf_x[elem]
         v_x_2 += v_x * v_x
         v_y = 0 if elem not in tf_y else idf * tf_y[elem]
         v_y_2 += v_y * v_y
-    return result if v_x_2 == 0 else result / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
+    return (result if v_x_2 == 0 else
+            result / (math.sqrt(v_x_2) * math.sqrt(v_y_2)))
 
 
 class Similarity:

@@ -52,16 +52,17 @@ def auth(email, password, client_id, scope):
     def auth_user(email, password, client_id, scope, opener):
         response = opener.open(
             'https://oauth.vk.com/authorize?' +
-            'redirect_uri=https://oauth.vk.com/blank.html&response_type=token&'+
+            '''redirect_uri=https://oauth.vk.com/
+            blank.html&response_type=token&''' +
             'client_id={}&scope={}&display=page'.format(client_id,
-                                                       ','.join(scope))
+                                                        ','.join(scope))
         )
         doc = response.read().decode('utf-8')
         parser = FormParser()
         parser.feed(doc)
         parser.close()
-        if (not parser.form_parsed or parser.url is None
-            or 'pass' not in parser.params or 'email' not in parser.params):
+        if (not parser.form_parsed or parser.url is None or
+                'pass' not in parser.params or 'email' not in parser.params):
             raise RuntimeError()
         parser.params['email'] = email
         parser.params['pass'] = password
