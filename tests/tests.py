@@ -173,14 +173,16 @@ class TestTemplateWriter(unittest.TestCase):
         self.friend = Client.FriendInfo(name='John', city='London')
 
     def test_extract_fields(self):
-        self.assertEqual(['name', 'city'], self.writer.fields)
+        self.assertCountEqual(['name', 'city', 'friend', 'mobile_phone'],
+                         self.writer.fields)
 
     def test_get_unrecognized_fields(self):
-        self.assertEqual(['friend', 'mobile_phone'],
+        self.assertCountEqual(['friend', 'mobile_phone'],
                          self.writer.get_unrecognized_fields(self.friend))
 
     def test_fill_line(self):
         line = '{{name}}, nice to see you in {{city}}'
+        self.writer.fields = ['name', 'city']
         self.assertEqual('John, nice to see you in London',
                          self.writer.fill_line(self.friend, line))
 

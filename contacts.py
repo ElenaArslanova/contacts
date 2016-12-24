@@ -73,6 +73,7 @@ def main():
         if template:
             writer = Writer(template)
             writer.write_filled_template(profiles)
+            print('Templates are written!')
     except Exception as e:
         print(e)
 

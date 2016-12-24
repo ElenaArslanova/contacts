@@ -8,7 +8,11 @@ class Writer:
     def __init__(self, template_file):
         if not os.path.exists(template_file):
             raise FileNotFoundError('Template file is not found')
-        with open(template_file, 'r') as f:
+        if os.path.isabs(template_file):
+            path = template_file
+        else:
+            path = os.path.join(os.getcwd(), template_file)
+        with open(path, 'r', encoding='utf-8') as f:
             self.template = f.readlines()
         self.fields = self.extract_fields()
         self.template_name = os.path.basename(template_file)
@@ -32,7 +36,7 @@ class Writer:
             template_name, ext = os.path.splitext(self.template_name)
             template_name += str(count)
             path = os.path.join(self.FILLED_TEMPLATES_DIR, template_name + ext)
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 for line in self.template:
                     line = self.fill_line(friend, line)
                     f.write(line)
