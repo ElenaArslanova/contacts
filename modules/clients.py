@@ -66,8 +66,7 @@ class VkClient(Client):
 
     def process_friends_field(self, friends, fields):
         for field in fields:
-            (friends_with_field_specified,
-             remaining_friends) = self.friends_filtered_by_field(
+            friends_with_field_specified, remaining_friends = self.friends_filtered_by_field(
                 friends, field)
             for friend in friends_with_field_specified:
                 title = friend[field]['title']
