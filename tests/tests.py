@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 from modules.clients import Client
 from modules import metrics
 from modules.matcher import Matcher, Pair
+from modules.template_writer import Writer
 
 
 class TestMetrics(unittest.TestCase):
@@ -165,6 +166,23 @@ class TestMatcher(unittest.TestCase):
                     self.twitter_profiles[1].info]
         self.assertCountEqual(merged_profiles, profiles)
 
+
+class TestTemplateWriter(unittest.TestCase):
+    def setUp(self):
+        self.writer = Writer('test_template.txt')
+        self.friend = Client.FriendInfo(name='John', city='London')
+
+    def test_extract_fields(self):
+        self.assertEqual(['name', 'city'], self.writer.fields)
+
+    def test_get_unrecognized_fields(self):
+        self.assertEqual(['friend', 'mobile_phone'],
+                         self.writer.get_unrecognized_fields(self.friend))
+
+    def test_fill_line(self):
+        line = '{{name}}, nice to see you in {{city}}'
+        self.assertEqual('John, nice to see you in London',
+                         self.writer.fill_line(self.friend, line))
 
 if __name__ == '__main__':
     unittest.main()

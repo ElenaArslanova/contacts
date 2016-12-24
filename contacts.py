@@ -5,6 +5,7 @@ import os.path
 
 from modules.clients import Client, VkClient, TwitterClient
 from modules.matcher import Matcher
+from modules.template_writer import Writer
 
 
 def create_parser():
@@ -18,6 +19,7 @@ def create_parser():
                         required=True)
     parser.add_argument('--file', default='profiles',
                         help='saving exported profiles to csv file')
+    parser.add_argument('--template', help='template file')
     parser.add_argument('--auto_merge', action='store_true', default=True,
                         help='''Automatic merge in case of conflict
                         (VK data is preferred)''')
@@ -54,6 +56,7 @@ def main():
     vk_screen_name = namespace.vk_name
     twitter_screen_name = namespace.twitter_name
     filename = namespace.file
+    template = namespace.template
     auto_merge = namespace.auto_merge
     print('Log into VK')
     email = input('Email: ')
@@ -67,6 +70,9 @@ def main():
         profiles = matcher.match_profiles()
         write_to_csv(profiles, filename)
         print('Exporting profiles is finished!')
+        if template:
+            writer = Writer(template)
+            writer.write_filled_template(profiles)
     except Exception as e:
         print(e)
 

@@ -1,0 +1,4 @@
+Hello {{name}}!
+{{name}}, see you in {{city}}.
+Take {{friend}} with you.
+Call me - {{mobile_phone}}.
