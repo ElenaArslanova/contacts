@@ -21,8 +21,8 @@ class AppAuthHandler:
                                          data=urlencode(
                                          {'grant_type': 'client_credentials'}
                                          ).encode())
-        data = json.loads(urllib.request.urlopen(request).read().decode(
-               'utf-8'))
+        data = json.loads(
+            urllib.request.urlopen(request).read().decode('utf-8'))
         if data['token_type'] != 'bearer':
             raise RuntimeError('Expected bearer token, '
                                'got token of type {} instead'.format(

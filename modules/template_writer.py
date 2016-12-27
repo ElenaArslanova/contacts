@@ -55,5 +55,3 @@ class Writer:
     def clean_templates_directory(self, ):
         for file in os.listdir(self.FILLED_TEMPLATES_DIR):
             os.remove(os.path.join(self.FILLED_TEMPLATES_DIR, file))
-
-

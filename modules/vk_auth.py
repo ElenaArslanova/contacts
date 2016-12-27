@@ -52,9 +52,9 @@ def auth(email, password, client_id, scope):
     def auth_user(email, password, client_id, scope, opener):
         response = opener.open(
             'https://oauth.vk.com/authorize?' +
-            'redirect_uri=https://oauth.vk.com/blank.html&response_type=token&'+
-            'client_id={}&scope={}&display=page'.format(client_id,
-                                                        ','.join(scope))
+            'redirect_uri=https://oauth.vk.com/blank.html&response_type=' +
+            'token&client_id={}&scope={}&display=page'.format(client_id,
+                                                              ','.join(scope))
         )
         doc = response.read().decode('utf-8')
         parser = FormParser()
