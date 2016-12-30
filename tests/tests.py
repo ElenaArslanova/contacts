@@ -169,7 +169,7 @@ class TestMatcher(unittest.TestCase):
 
 class TestTemplateWriter(unittest.TestCase):
     def setUp(self):
-        self.writer = Writer('test_template.txt')
+        self.writer = Writer(os.path.join('tests', 'test_template.txt'))
         self.friend = Client.FriendInfo(name='John', city='London')
 
     def test_extract_fields(self):

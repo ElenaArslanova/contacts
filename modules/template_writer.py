@@ -7,12 +7,9 @@ class Writer:
 
     def __init__(self, template_file):
         if not os.path.exists(template_file):
-            raise FileNotFoundError('Template file is not found')
-        if os.path.isabs(template_file):
-            path = template_file
-        else:
-            path = os.path.join(os.getcwd(), template_file)
-        with open(path, 'r', encoding='utf-8') as f:
+            raise FileNotFoundError('Template file {} is not found'.format(
+                os.path.basename(template_file)))
+        with open(template_file, 'r', encoding='utf-8') as f:
             self.template = f.readlines()
         self.fields = self.extract_fields()
         self.template_name = os.path.basename(template_file)
